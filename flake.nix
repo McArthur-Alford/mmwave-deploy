@@ -56,13 +56,16 @@
         };
       };
     buildConfiguration = node:
-      let
-        generated = buildGenerator node;
-      in
       nixpkgs.lib.nixosSystem {
-        inherit (generated) system;
-        modules = node.modules ++ [ ./formats/${generated.format}.nix ];
-        inherit (generated) specialArgs;
+        specialArgs = {
+          inherit nixpkgs;
+          inherit self;
+          nodeHostName = node.name;
+          inherit inputs;
+          mmwave = mmwave.packages.${node.system};
+        };
+        inherit (node) system;
+        modules = node.modules ++ [ ./formats/${node.format}.nix ];
       };
   in
   {
