@@ -15,6 +15,7 @@ in
   environment.systemPackages = (with pkgs; [
     btop
     helix
+    cachix
     git
   ]) ++ (with mmwave; [
     machine
@@ -92,7 +93,6 @@ in
       workstation = true;
     };
   };
-
 
   services.cachix-agent.enable = true;
 

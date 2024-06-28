@@ -120,11 +120,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1719499486,
-        "narHash": "sha256-kINrmD0JCNYU6yer3bDasfKjA5PsvLiAWwFsjcS44fY=",
+        "lastModified": 1719543798,
+        "narHash": "sha256-XU9QU0S9Uv8pahvuTKisO0Fd4C5escoZH3/1UMe3zf4=",
         "owner": "uqiotstudio",
         "repo": "mmwave-rewrite",
-        "rev": "98ec3b8fa21dee197ad3e6b63bef8d704a84fa0c",
+        "rev": "b0415704437b318efb48948a39b8d1fdbf97e0e0",
         "type": "github"
       },
       "original": {
