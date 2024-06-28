@@ -68,6 +68,10 @@ in
     source = "${self.outPath}/agent-token.token";
   };
 
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+  };
+
   services.cachix-agent.enable = true;
 
   environment.variables = {

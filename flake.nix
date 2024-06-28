@@ -26,18 +26,10 @@
     nix-formatter-pack.url = "github:Gerschtli/nix-formatter-pack";
     flake-utils.url = "github:numtide/flake-utils";
     mmwave.url = "github:uqiotstudio/mmwave-rewrite";
-    deploy-rs.url = "github:serokell/deploy-rs";
   };
 
   outputs = inputs: with inputs;
   let
-    deployPkgs = import nixpkgs {
-      inherit system;
-      overlays = [
-        deploy-rs.overlay # or deploy-rs.overlays.default
-        (self: super: { deploy-rs = { inherit (pkgs) deploy-rs; lib = super.deploy-rs.lib; }; })
-      ];
-    };
     nodes = [
       {
         name = "pi4";
@@ -85,15 +77,5 @@
         (node: { inherit (node) name; value = buildConfiguration node; })
         nodes
     );
-
-    deploy.nodes.pi4 = {
-      hostname = "pi4";
-      profiles.system = {
-        user = "root";
-        path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.pi4;
-      };
-    };
-
-    checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
   };
 }
