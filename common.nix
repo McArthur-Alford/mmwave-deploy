@@ -1,7 +1,8 @@
-{ pkgs, self, nodeHostName, mmwave, ... }:
+{ pkgs, self, name, mmwave, machine-id ? -1, ... }:
 let
   user = "mmwave";
   password = "mmwave";
+  hostName = if machine-id >= 0 then "machine-${toString machine-id}" else "${name}";
   overlay = _final: super: {
     makeModulesClosure = x:
       super.makeModulesClosure (x // { allowMissing = true; });
@@ -12,11 +13,26 @@ in
 
   nixpkgs.overlays = [ overlay ];
 
+  systemd.services.mmwave-machine = {
+    enable = true;
+    description = "the mmwave machine client";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      Restart = "always";
+      ExecStart = if machine-id >= 0 then ''
+        ${mmwave.machine}/bin/mmwave-machine -t -m ${toString machine-id}
+      '' else ''
+        ${pkgs.bash}/bin/bash -c echo "missing mmwave-machine"
+      '';
+    };
+  };
+
   environment.systemPackages = (with pkgs; [
     btop
     helix
-    cachix
     git
+    neofetch
   ]) ++ (with mmwave; [
     machine
     discovery
@@ -37,12 +53,12 @@ in
 
   networking = {
     useDHCP = true;
-    hostName = nodeHostName;
+    hostName = hostName;
     wireless = {
       enable = true;
       networks = {
         ammwbase = {
-          psk = "mmwave";
+          psk = "mmwavenetwork";
         };
       };
     };
@@ -65,9 +81,6 @@ in
   environment.etc.nixos = {
     source = ./nixos;
   };
-  environment.etc."cachix-agent.token" = {
-    source = "${self.outPath}/agent-token.token";
-  };
 
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
@@ -79,6 +92,10 @@ in
     trusted-public-keys = [
       "mmwave.cachix.org-1:51WVqkk3jgt8S5rmsTZVsFvPw06FpTd1niyrFzJ6ucQ="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    ];
+    trusted-users = [
+      "root"
+      user
     ];
   };
 
@@ -94,17 +111,10 @@ in
     };
   };
 
-  services.cachix-agent.enable = true;
-
   environment.variables = {
-    FLAKE_PATH = "path:${self.outPath}#${nodeHostName}";
+    FLAKE_PATH = "path:${self.outPath}#${hostName}";
+    MACHINE_ID = machine-id;
   };
-
-  system.autoUpgrade.enable = true;
-  system.autoUpgrade.dates  = "*-*-* *:20:00";
-  system.autoUpgrade.flake  = "github:McArthur-Alford/mmwave-deploy#nixosConfigurations.${nodeHostName}";
-  system.autoUpgrade.flags  = ["--refresh"];
-  system.autoUpgrade.randomizedDelaySec = "5m";
 
   system.stateVersion = "24.05";
 }
