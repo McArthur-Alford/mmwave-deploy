@@ -29,95 +29,147 @@
     deploy-rs.url = "github:serokell/deploy-rs";
   };
 
-  outputs = inputs: with inputs;
-  let
-    nodes = {
-      pi4 = {
-        name = "pi4";
-        system = "aarch64-linux";
-        format = "sd-aarch64";
-        inherit nixpkgs;
-        modules = [
-          ./common.nix
-          "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-        ];
-      };
-    };
-    buildGenerator = {node, machine-id ? -1}:
-      inputs.nixos-generators.nixosGenerate {
-        inherit (node) system;
-        inherit (node) format;
-        inherit (node) modules;
-        specialArgs = {
+  outputs =
+    inputs:
+    with inputs;
+    let
+      nodes = {
+        pi4 = {
+          name = "pi4";
+          system = "aarch64-linux";
+          format = "sd-aarch64";
           inherit nixpkgs;
-          inherit self;
-          inherit (node) name;
-          inherit machine-id;
-          inherit inputs;
-          mmwave = mmwave.packages.${node.system};
+          modules = [
+            ./common.nix
+            "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+          ];
         };
-      };
-    buildConfiguration = {node, machine-id ? -1}:
-      nixpkgs.lib.nixosSystem {
-        specialArgs = {
+        pi0 = {
+          name = "pi0";
+          system = "aarch64-linux";
+          format = "sd-aarch64";
           inherit nixpkgs;
-          inherit self;
-          inherit (node) name;
-          inherit machine-id;
-          inherit inputs;
-          mmwave = mmwave.packages.${node.system};
-        };
-        inherit (node) system;
-        modules = node.modules ++ [ ./formats/${node.format}.nix ];
-      };
-  in
-  {
-    generators = builtins.listToAttrs (
-      map
-        (node: { inherit (node) name; value = buildGenerator {inherit node;}; })
-        [
-          (nodes.pi4)
-        ]
-    );
-
-    nixosConfigurations = builtins.listToAttrs (
-      map
-        (node: { 
-          name = if node.machine-id < 0 then "${node.name}" else "${node.name}-${toString node.machine-id}";
-          value = buildConfiguration {
-            inherit node; 
-            inherit (node) machine-id;
-          }; 
-        })
-        [
-          (nodes.pi4 // {machine-id=-1;})
-          (nodes.pi4 // {machine-id=0;})
-          (nodes.pi4 // {machine-id=1;})
-          (nodes.pi4 // {machine-id=2;})
-        ]
-    );
-
-    deploy.nodes = {
-      # development = {
-      #   hostname = "192.168.0.228";
-      #   sshUser = "root";
-      #   profilesOrder = [ "system" ];
-      #   profiles.system = {
-      #     user = "root";
-      #     path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-0;
-      #   };
-      # };
-      machine-0 = {
-        hostname = "machine-0.local";
-        sshUser = "root";
-        profilesOrder = [ "system" ];
-        profiles.system = {
-          user = "root";
-          path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-0;
+          modules = [
+            ./common.nix
+            "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+          ];
         };
       };
+      buildGenerator =
+        {
+          node,
+          machine-id ? -1,
+        }:
+        inputs.nixos-generators.nixosGenerate {
+          inherit (node) system;
+          inherit (node) format;
+          inherit (node) modules;
+          specialArgs = {
+            inherit nixpkgs;
+            inherit self;
+            inherit (node) name;
+            inherit machine-id;
+            inherit inputs;
+            mmwave = mmwave.packages.${node.system};
+          };
+        };
+      buildConfiguration =
+        {
+          node,
+          machine-id ? -1,
+        }:
+        nixpkgs.lib.nixosSystem {
+          specialArgs = {
+            inherit nixpkgs;
+            inherit self;
+            inherit (node) name;
+            inherit machine-id;
+            inherit inputs;
+            mmwave = mmwave.packages.${node.system};
+          };
+          inherit (node) system;
+          modules = node.modules ++ [ ./formats/${node.format}.nix ];
+        };
+    in
+    {
+      generators = builtins.listToAttrs (
+        map
+          (node: {
+            inherit (node) name;
+            value = buildGenerator { inherit node; };
+          })
+          [
+            (nodes.pi4)
+            (nodes.pi0)
+          ]
+      );
+
+      nixosConfigurations = builtins.listToAttrs (
+        map
+          (node: {
+            name = if node.machine-id < 0 then "${node.name}" else "${node.name}-${toString node.machine-id}";
+            value = buildConfiguration {
+              inherit node;
+              inherit (node) machine-id;
+            };
+          })
+          [
+            (nodes.pi4 // { machine-id = -1; })
+            (nodes.pi4 // { machine-id = 0; })
+            (nodes.pi4 // { machine-id = 1; })
+            (nodes.pi4 // { machine-id = 2; })
+            (nodes.pi0 // { machine-id = 3; })
+          ]
+      );
+
+      deploy.nodes = {
+        development = {
+          hostname = "192.168.1.192";
+          sshUser = "root";
+          profilesOrder = [ "system" ];
+          profiles.system = {
+            user = "root";
+            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-1;
+          };
+        };
+        machine-0 = {
+          hostname = "machine-0.local";
+          sshUser = "root";
+          profilesOrder = [ "system" ];
+          profiles.system = {
+            user = "root";
+            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-0;
+          };
+        };
+        machine-1 = {
+          hostname = "machine-1.local";
+          sshUser = "root";
+          profilesOrder = [ "system" ];
+          profiles.system = {
+            user = "root";
+            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-1;
+          };
+        };
+        machine-2 = {
+          hostname = "machine-2.local";
+          sshUser = "root";
+          profilesOrder = [ "system" ];
+          profiles.system = {
+            user = "root";
+            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-2;
+          };
+        };
+        machine-3 = {
+          hostname = "machine-3.local";
+          sshUser = "root";
+          profilesOrder = [ "system" ];
+          profiles.system = {
+            user = "root";
+            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi0-3;
+          };
+        };
+      };
+
+      checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
     };
-
-    checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
-  };
 }

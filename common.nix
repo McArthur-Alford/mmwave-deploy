@@ -33,6 +33,7 @@ in
     helix
     git
     neofetch
+    # nmtui
   ]) ++ (with mmwave; [
     machine
     discovery
@@ -54,6 +55,7 @@ in
   networking = {
     useDHCP = true;
     hostName = hostName;
+    # networkmanager.enable = true;
     wireless = {
       enable = true;
       networks = {
