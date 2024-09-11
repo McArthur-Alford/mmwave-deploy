@@ -1,12 +1,14 @@
 {
   nixConfig = {
     extra-substituters = [
+      "https://raspberry-pi-nix.cachix.org"
       "https://mmwave.cachix.org"
       "https://cache.nixos.org/"
       "https://nix-community.cachix.org"
     ];
     extra-experimental-features = "nix-command flakes";
     extra-trusted-public-keys = [
+      "raspberry-pi-nix.cachix.org-1:WmV2rdSangxW0rZjY/tBvBDSaNFQ3DyEQsVw8EvHn9o="
       "mmwave.cachix.org-1:51WVqkk3jgt8S5rmsTZVsFvPw06FpTd1niyrFzJ6ucQ="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
     ];
@@ -27,6 +29,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     mmwave.url = "github:uqiotstudio/mmwave-rewrite";
     deploy-rs.url = "github:serokell/deploy-rs";
+    raspberry-pi-nix.url = "github:tstat/raspberry-pi-nix";
   };
 
   outputs =
@@ -43,6 +46,19 @@
             ./common.nix
             "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
           ];
+          configModules = [ ./formats/sd-aarch64.nix ];
+        };
+        pi4-desktop = {
+          name = "pi4-desktop";
+          system = "aarch64-linux";
+          format = "sd-aarch64";
+          inherit nixpkgs;
+          modules = [
+            ./common.nix
+            ./desktop.nix
+            "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+          ];
+          configModules = [ ./formats/sd-aarch64.nix ];
         };
         pi0 = {
           name = "pi0";
@@ -53,7 +69,20 @@
             ./common.nix
             "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
           ];
+          configModules = [ ./formats/sd-aarch64.nix ];
         };
+        # pi5 = {
+        #   name = "pi5";
+        #   system = "aarch64-linux";
+        #   format = "sd-aarch64";
+        #   inherit nixpkgs;
+        #   modules = [
+        #     ./common.nix
+        #     # "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+        #     # inputs.raspberry-pi-nix.nixosModules.raspberry-pi
+        #     ./pi5.nix
+        #   ];
+        # };
       };
       buildGenerator =
         {
@@ -88,7 +117,7 @@
             mmwave = mmwave.packages.${node.system};
           };
           inherit (node) system;
-          modules = node.modules ++ [ ./formats/${node.format}.nix ];
+          modules = node.modules ++ node.configModules;
         };
     in
     {
@@ -101,6 +130,8 @@
           [
             (nodes.pi4)
             (nodes.pi0)
+            (nodes.pi4-desktop)
+            # (nodes.pi5)
           ]
       );
 
@@ -115,21 +146,24 @@
           })
           [
             (nodes.pi4 // { machine-id = -1; })
-            (nodes.pi4 // { machine-id = 0; })
+            # (nodes.pi4 // { machine-id = 0; })
             (nodes.pi4 // { machine-id = 1; })
             (nodes.pi4 // { machine-id = 2; })
-            (nodes.pi0 // { machine-id = 3; })
+            (nodes.pi4 // { machine-id = 3; })
+            (nodes.pi4-desktop // { machine-id = 0; })
+            # (nodes.pi0 // { machine-id = 3; })
+            # (nodes.pi5 // { machine-id = 100; })
           ]
       );
 
       deploy.nodes = {
         development = {
-          hostname = "192.168.1.192";
+          hostname = "192.168.1.17";
           sshUser = "root";
           profilesOrder = [ "system" ];
           profiles.system = {
             user = "root";
-            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-1;
+            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-desktop-0;
           };
         };
         machine-0 = {
@@ -138,7 +172,7 @@
           profilesOrder = [ "system" ];
           profiles.system = {
             user = "root";
-            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-0;
+            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-desktop-0;
           };
         };
         machine-1 = {
@@ -151,7 +185,7 @@
           };
         };
         machine-2 = {
-          hostname = "machine-2.local";
+          hostname = "machine-2";
           sshUser = "root";
           profilesOrder = [ "system" ];
           profiles.system = {
@@ -165,7 +199,7 @@
           profilesOrder = [ "system" ];
           profiles.system = {
             user = "root";
-            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi0-3;
+            path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.pi4-3;
           };
         };
       };

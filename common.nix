@@ -1,11 +1,17 @@
-{ pkgs, self, name, mmwave, machine-id ? -1, ... }:
+{
+  pkgs,
+  self,
+  name,
+  mmwave,
+  machine-id ? -1,
+  ...
+}:
 let
   user = "mmwave";
   password = "mmwave";
   hostName = if machine-id >= 0 then "machine-${toString machine-id}" else "${name}";
   overlay = _final: super: {
-    makeModulesClosure = x:
-      super.makeModulesClosure (x // { allowMissing = true; });
+    makeModulesClosure = x: super.makeModulesClosure (x // { allowMissing = true; });
   };
 in
 {
@@ -16,29 +22,45 @@ in
   systemd.services.mmwave-machine = {
     enable = true;
     description = "the mmwave machine client";
+    wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
+    after = [ "network-online.target" ];
+    # wants = [ "default.target" ];
+    # wants = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
       Restart = "always";
-      ExecStart = if machine-id >= 0 then ''
-        ${mmwave.machine}/bin/mmwave-machine -t -m ${toString machine-id}
-      '' else ''
-        ${pkgs.bash}/bin/bash -c echo "missing mmwave-machine"
-      '';
+      ExecStart =
+        if machine-id >= 0 then
+          ''
+            ${mmwave.machine}/bin/mmwave-machine -t -m ${toString machine-id}
+          ''
+        else
+          ''
+            ${pkgs.bash}/bin/bash -c echo "missing mmwave-machine id"
+          '';
     };
   };
 
-  environment.systemPackages = (with pkgs; [
-    btop
-    helix
-    git
-    neofetch
-    # nmtui
-  ]) ++ (with mmwave; [
-    machine
-    discovery
-    dashboard
-  ]);
+  environment.systemPackages =
+    (with pkgs; [
+      btop
+      helix
+      git
+      neofetch
+      # nmtui
+      natscli
+      nats-server
+      (pkgs.writeScriptBin "nats_server" ''
+        rm -r ~/js_store
+        nats-server --port 3000 -js -sd ~/js_store
+      '')
+    ])
+    ++ (with mmwave; [
+      machine
+      discovery
+      dashboard
+    ]);
 
   users = {
     mutableUsers = false;
@@ -53,9 +75,9 @@ in
   };
 
   networking = {
-    useDHCP = true;
+    useDHCP = pkgs.lib.mkForce true;
     hostName = hostName;
-    # networkmanager.enable = true;
+    networkmanager.enable = pkgs.lib.mkForce false;
     wireless = {
       enable = true;
       networks = {
@@ -76,16 +98,26 @@ in
     };
   };
   programs.ssh.startAgent = true;
-  networking.firewall.allowedTCPPorts = [ 22 ];
+  networking.firewall.allowedTCPPorts = [
+    22
+    3000
+  ];
+  # networking.firewall.allowedUDPPorts = [
+  #   3000
+  # ];
 
   hardware.enableRedistributableFirmware = true;
+  # hardware.bluetooth.enable = false;
 
   environment.etc.nixos = {
     source = ./nixos;
   };
 
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     substituters = [
       "https://mmwave.cachix.org"
       "https://cache.nixos.org/"
