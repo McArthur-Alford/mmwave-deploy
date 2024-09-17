@@ -60,6 +60,8 @@ All radars currently use the AWR1843AOP model, not the boost. It is important th
 
 The position and orientation set the x/y/z and yaw/pitch of the radar. Translation is applied *before* rotation. These units are in meters for position and degrees for orientation. There is no universal origin, or agreed upon "forward" orientation.
 
+The config text field does not need to be edited, it is the file path to a config for the radar. This is an *override* for a default config, set by the model dropdown.
+
 ### Recording Device
 ![image](https://github.com/user-attachments/assets/ca30dec8-3560-4516-b81b-e27446050c0c)
 
