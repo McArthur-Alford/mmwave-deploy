@@ -42,7 +42,7 @@ The config panel on the right should initially be empty. The top row contains fo
 
 The empty device shown above is purely for testing purposes, with no functionality. It shouldn't be used in production. That said, it highlights some important details of the configuration panel.
 
-Every device has a id. As seen in the image, the id of the device is `m: 0, d: 0`. the `m` refers to the machine. This is the number printed on each of the radars. It is also the number 10 for the server (as that is what was set when running the command `mmwave-machine -m 10 -t` at the start of this guide). The device id should be unique for each device on one machine, though can otherwise be arbitrary. As an example, if machine 5 had two radars, the first radar device would have id 5-1 and the second would have id 5-2.
+Every device has a id. As seen in the image, the id of the device is `m: 0, d: 0`. the `m` refers to the machine and `d` the device. The machine number is the number printed on each of the radars. It is also the number 10 for the server (as that is what was set when we ran the command `mmwave-machine -m 10 -t` at the start of this guide). The device number should be unique for each device on one machine, though can otherwise be arbitrary. As an example, if machine 5 had two radars, the first radar device would have id 5-1 and the second would have id 5-2.
 
 There is also a delete button here, to remove the device.
 
