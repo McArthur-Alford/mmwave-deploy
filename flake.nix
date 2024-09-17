@@ -167,7 +167,7 @@
           };
         };
         machine-0 = {
-          hostname = "machine-0.local";
+          hostname = "machine-0";
           sshUser = "root";
           profilesOrder = [ "system" ];
           profiles.system = {
@@ -176,7 +176,7 @@
           };
         };
         machine-1 = {
-          hostname = "machine-1.local";
+          hostname = "machine-1";
           sshUser = "root";
           profilesOrder = [ "system" ];
           profiles.system = {
@@ -194,7 +194,7 @@
           };
         };
         machine-3 = {
-          hostname = "machine-3.local";
+          hostname = "machine-3";
           sshUser = "root";
           profilesOrder = [ "system" ];
           profiles.system = {
