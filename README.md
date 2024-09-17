@@ -39,6 +39,7 @@ The config panel on the right should initially be empty. The top row contains fo
 
 #### Devices
 ![image](https://github.com/user-attachments/assets/dfd98781-73a1-46d6-b10c-e39a5487f284)
+
 The empty device shown above is purely for testing purposes, with no functionality. It shouldn't be used in production. That said, it highlights some important details of the configuration panel.
 
 Every device has a id. As seen in the image, the id of the device is `m: 0, d: 0`. the `m` refers to the machine. This is the number printed on each of the radars. It is also the number 10 for the server (as that is what was set when running the command `mmwave-machine -m 10 -t` at the start of this guide). The device id should be unique for each device on one machine, though can otherwise be arbitrary. As an example, if machine 5 had two radars, the first radar device would have id 5-1 and the second would have id 5-2.
@@ -49,6 +50,7 @@ Lastly is the color. The color is not saved, and will be lost with a dashboard r
 
 #### Radar Device
 ![image](https://github.com/user-attachments/assets/e9efbc20-9e45-4c6b-9e85-6997353fdb3b)
+
 The AWR device, when added, has the above default config. The serial number is the serial number of each radar. There is no handy list of these serial numbers unfortunately, though they are provided in the existing default config, which can be loaded when starting the dashboard.
 
 All radars currently use the AWR1843AOP model, not the boost. It is important this is set correctly.
@@ -57,6 +59,7 @@ The position and orientation set the x/y/z and yaw/pitch of the radar. Translati
 
 ### Recording Device
 ![image](https://github.com/user-attachments/assets/ca30dec8-3560-4516-b81b-e27446050c0c)
+
 The recording device is quite straightforward. Assign it to the machine that should be recording. If the above steps were followed, that is machine 10.
 The filepath can point to a location on the device where the recording should be saved. Once the config is applied, the machine should start recording all point information to that file. Some important notes:
 - The data cannot accidentally be deleted easily, however shutting the server down without first deleting the recording device in the config (and applying that change) will lead to the file missing some curly braces at the end, making it difficult to parse later. Make sure to delete the recording device prior to closing the server down.
