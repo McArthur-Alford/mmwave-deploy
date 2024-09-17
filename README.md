@@ -21,7 +21,7 @@ As described in [starting the server](#starting-the-server), the dashboard can b
 Within the dashboard, configuration can be done on the right, and live data visualized on the left. 
 
 ### Visualisation
-The pointcloud on the left can be moved with mouse drag, and zoomed with scrollwheel. There are transformation options on the top left of the visualisation, rotation and position. These allow (for visualisation purposes, they do not effect recording) transformation of the pointclouds.
+The pointcloud on the left can be moved with mouse drag, and zoomed with ctrl+scrollwheel. There are transformation options on the top left of the visualisation, rotation and position. These allow (for visualisation purposes, they do not effect recording) transformation of the pointclouds.
 
 ### Configuration
 #### Operations:
