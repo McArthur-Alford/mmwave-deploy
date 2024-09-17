@@ -51,7 +51,10 @@ Lastly is the color. The color is not saved, and will be lost with a dashboard r
 #### Radar Device
 ![image](https://github.com/user-attachments/assets/e9efbc20-9e45-4c6b-9e85-6997353fdb3b)
 
-The AWR device, when added, has the above default config. The serial number is the serial number of each radar. There is no handy list of these serial numbers unfortunately, though they are provided in the existing default config, which can be loaded when starting the dashboard.
+The AWR device, when added, has the above default config. The serial number is the serial number of each radar. There is no handy way to get these numbers unfortunately, though they are provided in the existing default config, which can be loaded when starting the dashboard. Below are the numbers currently being used for each machine, in case you loose them:
+- M1: 00E23ED5
+- M2: 00E23EA9
+- M3: 00E23FD7
 
 All radars currently use the AWR1843AOP model, not the boost. It is important this is set correctly.
 
