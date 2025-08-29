@@ -12,6 +12,7 @@ Once konsole is up and running, run the following commands each in a new tab:
    - The machine should connect to NATS, and is useful for tasks like recording. If there are any errors on the server, they will appear in the logs produced by this command.
    - Additionally, once recording begins, the status should be visible in the output of this command.
 5. Running the dashboard. Run `mmwave-dashboard -t`
+6. (optional) After plugging in a mmwave radar directly into the server, run `sudo chown mmwave /dev/ttyUSB*`. This may require you to enter the password, which is `mmwave`.
 
 ## Starting the radars
 Once the server is started, the radars can be activated by powering them on. They will automatically boot and connect. If the radars were already running, they might connect to the server properly, but they also might not. In the event that they do not connect, simply power them off and on, and give them about 2 minutes to reboot/connect.
